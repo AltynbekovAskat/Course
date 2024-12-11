@@ -18,13 +18,18 @@ class ExamInline(admin.TabularInline):
     extra = 1
 
 
+class CourseMaterialInline(admin.TabularInline):
+    model = CourseMaterial
+    extra = 1
+
+
 class LessonAdmin(admin.ModelAdmin):
     inlines = [AssignmentInline]
 
 
 @admin.register(Course)
 class AllAdmin(TranslationAdmin):
-    inlines = [QuestionsInline, ExamInline]
+    inlines = [QuestionsInline, ExamInline, CourseMaterialInline]
 
     class Media:
         js = (
