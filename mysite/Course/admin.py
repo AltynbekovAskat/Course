@@ -16,6 +16,7 @@ class CourseAdmin(TranslationAdmin):
         }
 
 
+
 admin.site.register(User)
 admin.site.register(Teacher)
 admin.site.register(Category)

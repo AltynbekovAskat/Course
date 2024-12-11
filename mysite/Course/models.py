@@ -51,14 +51,15 @@ class Course(models.Model):
         return f'{self.course_name}, {self.category}'
 
 
+
 class Lesson(models.Model):
     title = models.CharField(max_length=32)
     video_url = models.FileField(upload_to='video/', null=True, blank=True)
     content = models.TextField()
-    course = models.ForeignKey(Course,on_delete=models.CASCADE, related_name='course_lesson')
+    course_lesson = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='course_lessons')
 
     def __str__(self):
-        return f'{self.title}, {self.course}'
+        return f'{self.title}, {self.course_lesson}'
 
 
 class Student(models.Model):
@@ -75,12 +76,12 @@ class Assignment(models.Model):
     title = models.CharField(max_length=40)
     description = models.TextField()
     due_date = models.DateTimeField(auto_now_add=True)
-    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='course_assignment')
+    course_assignment = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='course_assignment')
     students = models.ForeignKey(Student, on_delete=models.CASCADE, related_name='assignment_student')
     lesson = models.ForeignKey(Lesson, on_delete=models.CASCADE, related_name='lesson_assignment')
 
     def __str__(self):
-        return f'{self.title}, {self.course}'
+        return f'{self.title}, {self.course_assignment}'
 
 
 class Questions(models.Model):
@@ -92,7 +93,7 @@ class Questions(models.Model):
 
 class Exam(models.Model):
     title = models.CharField(max_length=32)
-    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='exam')
+    course_exam = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='exam')
     questions = models.ForeignKey(Questions, on_delete=models.CASCADE, related_name='questions')
     passing_score = models.IntegerField(choices=[(i, str(i)) for i in range(1, 101)], verbose_name='Баллы')
     duration = models.DateField()
@@ -103,7 +104,7 @@ class Exam(models.Model):
 
 class Certificate(models.Model):
     student = models.ForeignKey(Student, on_delete=models.CASCADE, related_name='student')
-    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='course_certificate')
+    course_certificate = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='course_certificates')
     issued_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
     certificate = models.CharField(max_length=32)
     certificate_url = models.FileField(upload_to='certificate_video/', null=True, blank=True)
@@ -121,19 +122,19 @@ class Cart(models.Model):
 
 class CartItem(models.Model):
     cart = models.ForeignKey(Cart, on_delete=models.CASCADE, related_name='items')
-    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='cart_items')
+    course_item = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='cart_items')
     quantity = models.PositiveSmallIntegerField(default=1)
 
     def __str__(self):
-        return f'{self.course}, {self.quantity}'
+        return f'{self.course_item}, {self.quantity}'
 
 
 class Review(models.Model):
     user = models.ForeignKey(Student, on_delete=models.CASCADE, related_name='user')
-    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='course_review')
+    course_review = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='course_reviews')
     instructor = models.ForeignKey(Teacher, on_delete=models.CASCADE, related_name='teacher_review')
     rating = models.IntegerField(choices=[(i, str(i)) for i in range(1, 6)])
     comment = models.TextField()
 
     def __str__(self):
-        return f'{self.user}, {self.course}'
+        return f'{self.user}, {self.course_review}'
