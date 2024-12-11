@@ -8,7 +8,7 @@ class User(AbstractUser):
         ('студент', 'студент'),
         ('препадватель', 'преподаватель'),
         ('администратор', 'администратор'),
-]
+    ]
     role = models.CharField(max_length=40, choices=ROLE_CHOICES, default='клиент')
 
     def __str__(self):
@@ -49,6 +49,8 @@ class Course(models.Model):
 
     def __str__(self):
         return f'{self.course_name}, {self.category}'
+
+
 
 
 
@@ -107,7 +109,7 @@ class Certificate(models.Model):
     course_certificate = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='course_certificates')
     issued_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
     certificate = models.CharField(max_length=32)
-    certificate_url = models.FileField(upload_to='certificate_video/', null=True, blank=True)
+    certificate_url = models.FileField(upload_to='certificate_pdf/', null=True, blank=True)
 
     def __str__(self):
         return f'{self.student}, {self.certificate}'
