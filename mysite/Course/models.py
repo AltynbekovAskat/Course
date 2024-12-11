@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
+from phonenumber_field.modelfields import PhoneNumberField
 
 
 class User(AbstractUser):
@@ -9,7 +10,7 @@ class User(AbstractUser):
         ('препадватель', 'преподаватель'),
         ('администратор', 'администратор'),
 ]
-    role = models.CharField(max_length=40, choices=ROLE_CHOICES, default='клиент')
+    role = models.CharField(max_length=40, choices=ROLE_CHOICES, default='студент')
 
     def __str__(self):
         return f'{self.user_name}'
@@ -20,6 +21,7 @@ class Teacher(models.Model):
     bio = models.TextField()
     profile_picture = models.ImageField(upload_to='picture/')
     owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user_owner')
+    phone_number = PhoneNumberField(null=True, blank=True)
 
     def __str__(self):
         return f'{self.teacher_name}, {self.owner}'
@@ -46,6 +48,27 @@ class Course(models.Model):
     created_by = models.ForeignKey(Teacher, on_delete=models.CASCADE)
     create_at = models. DateTimeField(auto_now_add=True)
     update_at = models.DateTimeField(null=True, blank=True)
+    language = models.CharField(max_length=32)
+
+    def get_avg_rating(self):
+        ratings = self.course_review.all()
+        if ratings.exists():
+            return round(sum(i.rating for i in ratings) / ratings.count(), 1)
+        return 0
+
+    def get_total_people(self):
+        ratings = self.course_review.all()
+        if ratings.exists():
+            if ratings.count() > 3:
+                return f'3+'
+            return ratings.count()
+        return 0
+
+    def get_count_rating(self):
+        ratings = self.course_review.all()
+        if ratings.exists():
+            return ratings.count()
+        return 0
 
     def __str__(self):
         return f'{self.course_name}, {self.category}'
@@ -53,7 +76,6 @@ class Course(models.Model):
 
 class Lesson(models.Model):
     title = models.CharField(max_length=32)
-    video_url = models.FileField(upload_to='video/', null=True, blank=True)
     content = models.TextField()
     course = models.ForeignKey(Course,on_delete=models.CASCADE, related_name='course_lesson')
 
@@ -61,9 +83,20 @@ class Lesson(models.Model):
         return f'{self.title}, {self.course}'
 
 
+class LessonVideo(models.Model):
+    video = models.URLField(null=True, blank=True)
+    lesson = models.ForeignKey(Lesson, on_delete=models.CASCADE, related_name='video')
+
+
+class LessonFile(models.Model):
+    file = models.FileField(upload_to='lesson_file/', null=True, blank=True)
+    lesson = models.ForeignKey(Lesson, on_delete=models.CASCADE, related_name='files')
+
+
 class Student(models.Model):
     student_name = models.CharField(max_length=32)
     student_bio = models.TextField()
+    phone_number = PhoneNumberField(null=True, blank=True)
     profile_picture = models.ImageField(upload_to='profile_picture/')
     student_owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='student_owner')
 
@@ -83,22 +116,27 @@ class Assignment(models.Model):
         return f'{self.title}, {self.course}'
 
 
-class Questions(models.Model):
-    questions_name = models.CharField(max_length=32)
-
-    def __str__(self):
-        return f'{self.questions_name}'
-
-
 class Exam(models.Model):
     title = models.CharField(max_length=32)
     course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='exam')
-    questions = models.ForeignKey(Questions, on_delete=models.CASCADE, related_name='questions')
     passing_score = models.IntegerField(choices=[(i, str(i)) for i in range(1, 101)], verbose_name='Баллы')
     duration = models.DateField()
 
     def __str__(self):
-        return f'{self.title}, {self.questions}'
+        return f'{self.title}, {self.passing_score}'
+
+
+class Questions(models.Model):
+    questions_name = models.CharField(max_length=100)
+    course = models.ForeignKey(Course, on_delete=models.CASCADE)
+    option1 = models.CharField(max_length=50)
+    option2 = models.CharField(max_length=50)
+    option3 = models.CharField(max_length=50)
+    option4 = models.CharField(max_length=50)
+    exam = models.ForeignKey(Exam, on_delete=models.CASCADE, related_name='exam_questions')
+
+    def __str__(self):
+        return f'{self.questions_name}'
 
 
 class Certificate(models.Model):
