@@ -42,8 +42,10 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'Course',
+    "phonenumber_field",
+    'rest_framework_swagger',
+    'drf_yasg',
     'django_filters',
-
 ]
 
 MIDDLEWARE = [

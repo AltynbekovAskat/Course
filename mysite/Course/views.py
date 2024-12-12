@@ -1,9 +1,8 @@
+from django.shortcuts import render
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import viewsets, generics
 from .models import *
 from .serializers import *
-
-
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -11,16 +10,19 @@ class UserViewSet(viewsets.ModelViewSet):
     serializer_class = UserSerializer
 
 
-class TeacherViewSet(viewsets.ModelViewSet):
+class TeacherListViewSet(viewsets.ModelViewSet):
     queryset = Teacher.objects.all()
-    serializer_class = TeacherSerializer
+    serializer_class = TeacherListSerializer
 
+
+class TeacherDetailViewSet(viewsets.ModelViewSet):
+    queryset = Teacher.objects.all()
+    serializer_class = TeacherDetailSerializer
 
 
 class CategoryViewSet(viewsets.ModelViewSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
-
 
 
 class CourseListAPIVew(generics.ListAPIView):
@@ -30,10 +32,14 @@ class CourseListAPIVew(generics.ListAPIView):
     filterset_fields = ['course_name', 'category']
 
 
-
 class CourseDetailAPIVew(generics.RetrieveAPIView):
     queryset = Course.objects.all()
     serializer_class = CourseDetailSerializer
+
+
+class CourseMaterialViewSet(viewsets.ModelViewSet):
+    queryset = CourseMaterial.objects.all()
+    serializer_class = CourseMaterialSerializer
 
 
 class LessonViewSet(viewsets.ModelViewSet):
@@ -51,8 +57,6 @@ class AssignmentViewSet(viewsets.ModelViewSet):
     serializer_class = AssignmentSerializer
 
 
-
-
 class ExamViewSet(viewsets.ModelViewSet):
     queryset = Exam.objects.all()
     serializer_class = ExamSerializer
@@ -61,8 +65,6 @@ class ExamViewSet(viewsets.ModelViewSet):
 class QuestionsViewSet(viewsets.ModelViewSet):
     queryset = Questions.objects.all()
     serializer_class = QuestionsSerializer
-
-
 
 
 class CertificateViewSet(viewsets.ModelViewSet):
@@ -83,3 +85,4 @@ class CartItemViewSet(viewsets.ModelViewSet):
 class ReviewViewSet(viewsets.ModelViewSet):
     queryset = Review.objects.all()
     serializer_class = ReviewSerializer
+
