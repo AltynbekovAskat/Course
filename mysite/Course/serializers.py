@@ -63,10 +63,10 @@ class ExamSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class QuestionsSerializer(serializers.ModelSerializer):
+class QuestionSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Questions
-        fields = '__all__'
+        model = Question
+        fields = ['text', 'option_1', 'option_2', 'option_3', 'option_4']
 
 
 class CertificateSerializer(serializers.ModelSerializer):
@@ -124,11 +124,12 @@ class CourseDetailSerializer(serializers.ModelSerializer):
     created_by = TeacherListSerializer()
     materials = CourseMaterialSerializer(many=True, read_only=True)
     teacher_review = ReviewSerializer(many=True, read_only=True)
+    question = QuestionSerializer(many=True, read_only=True)
 
     class Meta:
         model = Course
         fields = ['course_name', 'category', 'description', 'created_by', 'avg_rating', 'total_people', 'update_at',
-                  'materials', 'teacher_review', 'exam', 'course_reviews', 'owner']
+                  'materials', 'teacher_review', 'exam', 'question', 'course_reviews', 'owner']
 
     def get_avg_rating(self, obj):
         return obj.get_avg_rating()

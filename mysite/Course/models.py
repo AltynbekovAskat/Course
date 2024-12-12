@@ -132,18 +132,24 @@ class Exam(models.Model):
     def __str__(self):
         return f'{self.title}, {self.passing_score}'
 
+    # models.py
 
-class Questions(models.Model):
-    questions_name = models.CharField(max_length=100)
-    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='questions_course')
-    option1 = models.CharField(max_length=50)
-    option2 = models.CharField(max_length=50)
-    option3 = models.CharField(max_length=50)
-    option4 = models.CharField(max_length=50)
-    exam = models.ForeignKey(Exam, on_delete=models.CASCADE, related_name='exam_questions')
+
+class Question(models.Model):
+    text = models.CharField(max_length=255)  # Текст вопроса
+    option_1 = models.CharField(max_length=255)  # Вариант ответа 1
+    option_2 = models.CharField(max_length=255)  # Вариант ответа 2
+    option_3 = models.CharField(max_length=255)  # Вариант ответа 3
+    option_4 = models.CharField(max_length=255)  # Вариант ответа 4
+    correct_option = models.IntegerField()  # Индекс правильного ответа (от 1 до 4)
+    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='question')
 
     def __str__(self):
-        return f'{self.questions_name}'
+        return self.text
+
+    def check_answer(self, answer_index):
+        """Проверка, является ли выбранный ответ правильным"""
+        return answer_index == self.correct_option
 
 
 class Certificate(models.Model):

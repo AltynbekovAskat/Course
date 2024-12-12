@@ -8,8 +8,8 @@ class AssignmentInline(admin.TabularInline):
     extra = 1
 
 
-class QuestionsInline(admin.TabularInline):
-    model = Questions
+class QuestionInline(admin.TabularInline):
+    model = Question
     extra = 1
 
 
@@ -29,7 +29,21 @@ class LessonAdmin(admin.ModelAdmin):
 
 @admin.register(Course)
 class AllAdmin(TranslationAdmin):
-    inlines = [QuestionsInline, ExamInline, CourseMaterialInline]
+    inlines = [QuestionInline, ExamInline, CourseMaterialInline]
+
+    class Media:
+        js = (
+            'http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js',
+            'http://ajax.googleapis.com/ajax/libs/jqueryui/1.10.2/jquery-ui.min.js',
+            'modeltranslation/js/tabbed_translation_fields.js',
+        )
+        css = {
+            'screen': ('modeltranslation/css/tabbed_translation_fields.css',),
+        }
+
+
+@admin.register(Category)
+class AllAdmin(TranslationAdmin):
 
     class Media:
         js = (
@@ -45,7 +59,6 @@ class AllAdmin(TranslationAdmin):
 admin.site.register(Lesson, LessonAdmin)
 admin.site.register(User)
 admin.site.register(Teacher)
-admin.site.register(Category)
 admin.site.register(Student)
 admin.site.register(Certificate)
 admin.site.register(Cart)
