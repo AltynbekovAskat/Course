@@ -4,7 +4,7 @@ from phonenumber_field.modelfields import PhoneNumberField
 
 
 class User(AbstractUser):
-    user_name = models.CharField(max_length=32, unique=True)
+    user_name = models.CharField(max_length=32)
     ROLE_CHOICES = [
         ('студент', 'студент'),
         ('препадватель', 'преподаватель'),
@@ -136,24 +136,30 @@ class Exam(models.Model):
     def __str__(self):
         return f'{self.title}, {self.passing_score}'
 
+    # models.py
 
-class Questions(models.Model):
-    questions_name = models.CharField(max_length=100)
-    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='questions_course')
-    option1 = models.CharField(max_length=50)
-    option2 = models.CharField(max_length=50)
-    option3 = models.CharField(max_length=50)
-    option4 = models.CharField(max_length=50)
-    exam = models.ForeignKey(Exam, on_delete=models.CASCADE, related_name='exam_questions')
+
+class Question(models.Model):
+    text = models.CharField(max_length=255)  # Текст вопроса
+    option_1 = models.CharField(max_length=255)  # Вариант ответа 1
+    option_2 = models.CharField(max_length=255)  # Вариант ответа 2
+    option_3 = models.CharField(max_length=255)  # Вариант ответа 3
+    option_4 = models.CharField(max_length=255)  # Вариант ответа 4
+    correct_option = models.IntegerField()  # Индекс правильного ответа (от 1 до 4)
+    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='question')
 
     def __str__(self):
-        return f'{self.questions_name}'
+        return f'{self.text}'
+
+    def check_answer(self, answer_index):
+        """Проверка, является ли выбранный ответ правильным"""
+        return answer_index == self.correct_option
 
 
 class Certificate(models.Model):
     student = models.ForeignKey(Student, on_delete=models.CASCADE, related_name='student')
     course_certificate = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='course_certificates')
-    issued_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
+    issued_at = models.DateTimeField(auto_now_add=True)
     certificate = models.CharField(max_length=32)
     certificate_url = models.FileField(upload_to='PDF/', null=True, blank=True)
 
@@ -164,15 +170,27 @@ class Certificate(models.Model):
 
 class Cart(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='cart')
+    created_date = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return f'{self.user}'
 
+    def get_total_price(self):
+        total_price = sum(item.get_total_price() for item in self.items.all())
+        discount = 0
 
-class CartItem(models.Model):
-    cart = models.ForeignKey(Cart, on_delete=models.CASCADE, related_name='items')
-    course_item = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='cart_items')
+        final_price = total_price * (1 - discount)
+        return final_price
+
+
+class CarItem(models.Model):
+    cart = models.ForeignKey(Cart, related_name='item', on_delete=models.CASCADE)
+    course_item = models.ForeignKey(Course, related_name='course', on_delete=models.CASCADE)
     quantity = models.PositiveSmallIntegerField(default=1)
+
+    def get_total_price(self):
+        return self.course_item.price * self.quantity
+
 
     def __str__(self):
         return f'{self.course_item}, {self.quantity}'
